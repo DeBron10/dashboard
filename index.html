@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ongoing Projects Dashboard</title>
+
+  <style>
+    /* ===========================
+   GOOGLE FONT RESET
+=========================== */
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+
+      font-family: 'Poppins', sans-serif;
+
+      background: #eef3f8;
+
+      color: #2d3748;
+
+    }
+
+
+    /* ===========================
+   CONTAINER
+=========================== */
+
+    .container {
+
+      width: 95%;
+      max-width: 1800px;
+
+      margin: 35px auto;
+
+    }
+
+
+    /* ===========================
+   HEADER
+=========================== */
+
+    header {
+
+      background: #ffffff;
+
+      border-radius: 16px;
+
+      padding: 28px 35px;
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
+
+      margin-bottom: 35px;
+
+    }
+
+    header h1 {
+
+      font-size: 34px;
+
+      font-weight: 700;
+
+      color: #243b53;
+
+    }
+
+    header p {
+
+      margin-top: 5px;
+
+      color: #7b8794;
+
+      font-size: 15px;
+
+    }
+
+
+    /* ===========================
+   SUMMARY CARDS
+=========================== */
+
+    .summary {
+
+      display: flex;
+
+      gap: 18px;
+
+    }
+
+    .summary-card {
+
+      width: 200px;
+
+      height: 110px;
+
+      background: #f8fafc;
+
+      border-radius: 14px;
+
+      display: flex;
+
+      flex-direction: column;
+
+      justify-content: center;
+
+      align-items: center;
+
+      box-shadow: 0 5px 15px rgba(0, 0, 0, .05);
+
+      transition: .3s;
+
+    }
+
+    .summary-card:hover {
+
+      transform: translateY(-3px);
+
+    }
+
+    .summary-card h2 {
+
+      font-size: 34px;
+
+      color: #2563eb;
+
+      margin-bottom: 6px;
+
+    }
+
+    .summary-card span {
+
+      font-size: 14px;
+
+      color: #6b7280;
+
+      font-weight: 500;
+
+    }
+
+
+    /* ===========================
+   BOARD
+=========================== */
+
+    .board {
+
+      background: white;
+
+      border-radius: 18px;
+
+      overflow: hidden;
+
+      margin-bottom: 35px;
+
+      box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
+
+    }
+
+
+    .board-header {
+
+      color: white;
+
+      padding: 18px 28px;
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+    }
+
+    .board-header h2 {
+
+      font-size: 24px;
+
+      font-weight: 600;
+
+    }
+
+    .board-header span {
+
+      font-size: 14px;
+
+      opacity: .9;
+
+    }
+
+
+    /* ===========================
+   BOARD COLORS
+=========================== */
+
+    .blue {
+
+      background: linear-gradient(90deg, #2563eb, #1d4ed8);
+
+    }
+
+    .green {
+
+      background: linear-gradient(90deg, #16a34a, #15803d);
+
+    }
+
+    .orange {
+
+      background: linear-gradient(90deg, #f97316, #ea580c);
+
+    }
+
+    .purple {
+
+      background: linear-gradient(90deg, #7c3aed, #6d28d9);
+
+    }
+
+
+    /* ===========================
+   PANEL GRID
+=========================== */
+
+    .panel-grid {
+
+      padding: 25px;
+
+      display: grid;
+
+      grid-template-columns: repeat(4, 1fr);
+
+      gap: 22px;
+
+    }
+
+
+    /* ===========================
+   PANEL CARD
+=========================== */
+
+    .panel {
+
+      height: 220px;
+
+      background: white;
+
+      border-radius: 14px;
+
+      border-top: 6px solid #2563eb;
+
+      box-shadow: 0 8px 18px rgba(0, 0, 0, .06);
+
+      padding: 20px;
+
+      display: flex;
+
+      flex-direction: column;
+
+      justify-content: space-between;
+
+      transition: .25s;
+
+    }
+
+    .panel:hover {
+
+      transform: translateY(-5px);
+
+      box-shadow: 0 15px 30px rgba(0, 0, 0, .12);
+
+    }
+
+
+    /* Colored Borders */
+
+    .panel.blue-border {
+
+      border-top-color: #2563eb;
+
+    }
+
+    .panel.green-border {
+
+      border-top-color: #16a34a;
+
+    }
+
+    .panel.orange-border {
+
+      border-top-color: #ea580c;
+
+    }
+
+    .panel.purple-border {
+
+      border-top-color: #7c3aed;
+
+    }
+
+
+    /* ===========================
+   PANEL TITLE
+=========================== */
+
+    .panel-title {
+
+      font-size: 18px;
+
+      font-weight: 600;
+
+      color: #243b53;
+
+      line-height: 1.4;
+
+      height: 54px;
+
+      overflow: hidden;
+
+      display: -webkit-box;
+
+      -webkit-line-clamp: 2;
+
+      -webkit-box-orient: vertical;
+
+    }
+
+
+    /* ===========================
+   METRICS
+=========================== */
+
+    .metric {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+    }
+
+    .metric label {
+
+      color: #64748b;
+
+      font-size: 14px;
+
+      font-weight: 500;
+
+    }
+
+    .metric h3 {
+
+      color: #111827;
+
+      font-size: 30px;
+
+      font-weight: 700;
+
+    }
+
+    .metric h4 {
+
+      color: #16a34a;
+
+      font-size: 23px;
+
+      font-weight: 700;
+
+    }
+
+
+    /* ===========================
+   FOOTER
+=========================== */
+
+    .footer {
+
+      margin-top: 35px;
+
+      text-align: center;
+
+      color: #94a3b8;
+
+      font-size: 14px;
+
+    }
+
+
+    /* ===========================
+   RESPONSIVE
+=========================== */
+
+    @media(max-width:1400px) {
+
+      .panel-grid {
+
+        grid-template-columns: repeat(3, 1fr);
+
+      }
+
+    }
+
+    @media(max-width:992px) {
+
+      header {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 20px;
+
+      }
+
+      .summary {
+
+        width: 100%;
+
+      }
+
+      .summary-card {
+
+        flex: 1;
+
+        width: auto;
+
+      }
+
+      .panel-grid {
+
+        grid-template-columns: repeat(2, 1fr);
+
+      }
+
+    }
+
+    @media(max-width:650px) {
+
+      .panel-grid {
+
+        grid-template-columns: 1fr;
+
+      }
+
+      header h1 {
+
+        font-size: 28px;
+
+      }
+
+      .summary {
+
+        flex-direction: column;
+
+      }
+
+      .summary-card {
+
+        width: 100%;
+
+      }
+
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <div class="container">
+
+    <!-- HEADER -->
+
+    <header>
+
+      <div>
+
+        <h1>Ongoing Projects Dashboard</h1>
+
+        <p>Project Portfolio Overview</p>
+
+      </div>
+
+      <div class="summary">
+
+        <div class="summary-card">
+
+          <h2 id="totalProjects">0</h2>
+
+          <span>Total Projects</span>
+
+        </div>
+
+        <div class="summary-card">
+
+          <h2 id="totalCost">₹0 Cr</h2>
+
+          <span>Total Cost</span>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+
+    <!-- Dashboard Generated Here -->
+
+    <div id="dashboard"></div>
+
+  </div>
+
+  <script>
+
+    <script>
+
+      const data = [
+
+      {
+        Board: "Infrastructure Board",
+      Panel: "Infrastructure Panel 1",
+      Projects: 1,
+      Cost: 25000000
+    },
+      {
+        Board: "Infrastructure Board",
+      Panel: "Infrastructure Panel 2",
+      Projects: 1,
+      Cost: 45000000
+    },
+      {
+        Board: "Infrastructure Board",
+      Panel: "Infrastructure Panel 3",
+      Projects: 0,
+      Cost: 0
+    },
+      {
+        Board: "Infrastructure Board",
+      Panel: "Infrastructure Panel 4",
+      Projects: 0,
+      Cost: 0
+    },
+      {
+        Board: "Infrastructure Board",
+      Panel: "Infrastructure Panel 5",
+      Projects: 0,
+      Cost: 0
+    },
+      {
+        Board: "Infrastructure Board",
+      Panel: "Infrastructure Panel 6",
+      Projects: 1,
+      Cost: 35000000
+    },
+
+
+      {
+        Board: "Technology Board",
+      Panel: "Technology Panel 1",
+      Projects: 1,
+      Cost: 18000000
+    },
+      {
+        Board: "Technology Board",
+      Panel: "Technology Panel 2",
+      Projects: 1,
+      Cost: 22000000
+    },
+      {
+        Board: "Technology Board",
+      Panel: "Technology Panel 3",
+      Projects: 0,
+      Cost: 0
+    }
+
+      ];
+
+
+
+      // =============================
+      // GROUP BOARDS AUTOMATICALLY
+      // =============================
+
+      const boards = [];
+
+      const colors = [
+
+      {
+        color:"blue",
+      border:"blue-border"
+    },
+
+      {
+        color:"green",
+      border:"green-border"
+    },
+
+      {
+        color:"orange",
+      border:"orange-border"
+    },
+
+      {
+        color:"purple",
+      border:"purple-border"
+    }
+
+      ];
+
+
+
+      for(let i=0;i<data.length;i++)
+      {
+
+        let boardName=data[i].Board;
+
+
+      let board=null;
+
+
+
+      for(let j=0;j<boards.length;j++)
+      {
+
+        if(boards[j].name===boardName)
+      {
+        board = boards[j];
+      break;
+        }
+
+    }
+
+
+
+      if(board===null)
+      {
+
+        let index=boards.length;
+
+
+      board=
+      {
+        name:boardName,
+
+      color:colors[index].color,
+
+      border:colors[index].border,
+
+      panels:[]
+        };
+
+
+      boards.push(board);
+
+    }
+
+
+
+      board.panels.push({
+
+        name:data[i].Panel,
+
+      projects:data[i].Projects,
+
+      cost:data[i].Cost
+
+    });
+
+
+}
+
+
+
+
+      // =============================
+      // CREATE DASHBOARD
+      // =============================
+
+
+      const dashboard=document.getElementById("dashboard");
+
+
+      let totalProjects=0;
+
+      let totalCost=0;
+
+
+
+      for(let i=0;i<boards.length;i++)
+      {
+
+
+        let board=boards[i];
+
+
+
+      let boardDiv=document.createElement("div");
+
+
+      boardDiv.className="board";
+
+
+
+      boardDiv.innerHTML=
+
+      `
+      <div class="board-header ${board.color}">
+
+        <h2>${board.name}</h2>
+
+        <span>${board.panels.length} Panels</span>
+
+      </div>
+
+
+      <div class="panel-grid"></div>
+
+      `;
+
+
+
+      let grid=boardDiv.querySelector(".panel-grid");
+
+
+
+      for(let j=0;j<board.panels.length;j++)
+      {
+
+
+        let panel=board.panels[j];
+
+
+
+      totalProjects += panel.projects;
+
+      totalCost += panel.cost;
+
+
+
+      let costInCrore = panel.cost / 10000000;
+
+
+
+      let card=document.createElement("div");
+
+
+
+      card.className="panel " + board.border;
+
+
+
+      card.innerHTML=
+
+      `
+      <div class="panel-title">
+
+        ${panel.name}
+
+      </div>
+
+
+
+      <div class="metric">
+
+        <label>Ongoing Projects</label>
+
+        <h3>${panel.projects}</h3>
+
+      </div>
+
+
+
+      <div class="metric">
+
+        <label>Overall Cost</label>
+
+        <h4>
+          ₹${costInCrore.toFixed(2)} Cr
+        </h4>
+
+      </div>
+
+        `;
+
+
+
+        grid.appendChild(card);
+
+
+    }
+
+
+
+    dashboard.appendChild(boardDiv);
+
+
+}
+
+
+
+
+
+// =============================
+// TOP SUMMARY
+// =============================
+
+
+document.getElementById("totalProjects").innerHTML =
+totalProjects;
+
+
+
+document.getElementById("totalCost").innerHTML =
+
+"₹" + (totalCost/10000000).toFixed(2) + " Cr";
+
+
+
+  </script>
+
+  </script>
+
+</body>
+
+</html>
