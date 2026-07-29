@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ongoing Projects Dashboard</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            margin: 20px;
+            background: #eef3f8;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        #dashboard {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .board {
+            background: #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
+        }
+
+        .board-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            padding: 12px 20px;
+
+            color: #fff;
+
+        }
+
+        .board-title h2 {
+
+            margin: 0;
+
+            font-size: 20px;
+
+            font-weight: 600;
+
+        }
+
+        .board-summary {
+
+            display: flex;
+
+            gap: 12px;
+
+            align-items: center;
+
+        }
+
+        .summary-box {
+
+            background: rgba(255, 255, 255, .18);
+
+            padding: 8px 14px;
+
+            border-radius: 8px;
+
+            text-align: center;
+
+            min-width: 120px;
+
+        }
+
+        .summary-value {
+
+            display: block;
+
+            font-size: 22px;
+
+            font-weight: 700;
+
+            line-height: 1;
+
+        }
+
+        .summary-text {
+
+            display: block;
+
+            margin-top: 2px;
+
+            font-size: 11px;
+
+            opacity: .9;
+
+            text-transform: uppercase;
+
+            letter-spacing: .5px;
+
+        }
+
+        .blue {
+            background: #2563eb;
+        }
+
+        .green {
+            background: #16a34a;
+        }
+
+        .orange {
+            background: #ea580c;
+        }
+
+        .purple {
+            background: #7c3aed;
+        }
+
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .panel {
+
+            position: relative;
+
+            height: 200px;
+
+            background: #ffffff;
+
+            border-radius: 12px;
+
+            padding: 18px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            justify-content: space-between;
+
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .10);
+
+            overflow: hidden;
+
+            transition: .3s;
+
+        }
+
+        .panel:hover {
+
+            transform: translateY(-5px);
+
+            box-shadow: 0 12px 25px rgba(0, 0, 0, .18);
+
+        }
+
+        /* ===============================
+   Folded Corner
+================================ */
+
+        .panel::after {
+
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+
+            right: 0;
+
+            width: 0;
+
+            height: 0;
+
+            border-top: 30px solid #d9d9d9;
+
+            border-left: 30px solid transparent;
+
+            transition: .3s;
+
+        }
+
+        .panel:hover::after {
+
+            border-top-width: 36px;
+
+            border-left-width: 36px;
+
+        }
+
+        /* Small Shadow Under Fold */
+
+        .panel::before {
+
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+
+            right: 0;
+
+            width: 30px;
+
+            height: 30px;
+
+            background: linear-gradient(135deg,
+                    rgba(0, 0, 0, .18),
+                    rgba(255, 255, 255, 0));
+
+            clip-path: polygon(100% 0, 0 0, 100% 100%);
+
+            opacity: .25;
+
+        }
+
+        /* ===============================
+   Board Colors
+================================ */
+
+        .blue-border {
+
+            border-left: 6px solid #2563eb;
+
+        }
+
+        .blue-border::after {
+
+            border-top-color: #93c5fd;
+
+        }
+
+        .green-border {
+
+            border-left: 6px solid #16a34a;
+
+        }
+
+        .green-border::after {
+
+            border-top-color: #86efac;
+
+        }
+
+        .orange-border {
+
+            border-left: 6px solid #ea580c;
+
+        }
+
+        .orange-border::after {
+
+            border-top-color: #fdba74;
+
+        }
+
+        .purple-border {
+
+            border-left: 6px solid #7c3aed;
+
+        }
+
+        .purple-border::after {
+
+            border-top-color: #d8b4fe;
+
+        }
+
+        .panel-title {
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric label {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .metric h3 {
+            font-size: 28px;
+        }
+
+        .metric h4 {
+            color: #16a34a;
+            font-size: 22px;
+        }
+
+        @media(max-width:1200px) {
+            .panel-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media(max-width:768px) {
+            .panel-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media(max-width:500px) {
+            .panel-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="form-horizontal">
+            <div class="form-group">
+                <div class="main card mb-3">
+                    <div id="dashboard"></div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+
+            const data = [
+
+                // ===========================
+                // Infrastructure Board (6)
+                // ===========================
+
+                { Board: "Infrastructure Board", Panel: "Infrastructure Panel 1", Projects: 1, Cost: 25000000 },
+                { Board: "Infrastructure Board", Panel: "Infrastructure Panel 2", Projects: 2, Cost: 45000000 },
+                { Board: "Infrastructure Board", Panel: "Infrastructure Panel 3", Projects: 0, Cost: 0 },
+                { Board: "Infrastructure Board", Panel: "Infrastructure Panel 4", Projects: 1, Cost: 15000000 },
+                { Board: "Infrastructure Board", Panel: "Infrastructure Panel 5", Projects: 3, Cost: 55000000 },
+                { Board: "Infrastructure Board", Panel: "Infrastructure Panel 6", Projects: 0, Cost: 0 },
+
+                // ===========================
+                // Technology Board (7)
+                // ===========================
+
+                { Board: "Technology Board", Panel: "Technology Panel 1", Projects: 2, Cost: 18000000 },
+                { Board: "Technology Board", Panel: "Technology Panel 2", Projects: 1, Cost: 22000000 },
+                { Board: "Technology Board", Panel: "Technology Panel 3", Projects: 0, Cost: 0 },
+                { Board: "Technology Board", Panel: "Technology Panel 4", Projects: 3, Cost: 42000000 },
+                { Board: "Technology Board", Panel: "Technology Panel 5", Projects: 2, Cost: 28000000 },
+                { Board: "Technology Board", Panel: "Technology Panel 6", Projects: 1, Cost: 16000000 },
+                { Board: "Technology Board", Panel: "Technology Panel 7", Projects: 0, Cost: 0 },
+
+                // ===========================
+                // Operations Board (7)
+                // ===========================
+
+                { Board: "Operations Board", Panel: "Operations Panel 1", Projects: 1, Cost: 35000000 },
+                { Board: "Operations Board", Panel: "Operations Panel 2", Projects: 3, Cost: 60000000 },
+                { Board: "Operations Board", Panel: "Operations Panel 3", Projects: 2, Cost: 32000000 },
+                { Board: "Operations Board", Panel: "Operations Panel 4", Projects: 0, Cost: 0 },
+                { Board: "Operations Board", Panel: "Operations Panel 5", Projects: 1, Cost: 14000000 },
+                { Board: "Operations Board", Panel: "Operations Panel 6", Projects: 4, Cost: 72000000 },
+                { Board: "Operations Board", Panel: "Operations Panel 7", Projects: 0, Cost: 0 },
+
+                // ===========================
+                // Business Board (5)
+                // ===========================
+
+                { Board: "Business Board", Panel: "Business Panel 1", Projects: 2, Cost: 40000000 },
+                { Board: "Business Board", Panel: "Business Panel 2", Projects: 0, Cost: 0 },
+                { Board: "Business Board", Panel: "Business Panel 3", Projects: 1, Cost: 17000000 },
+                { Board: "Business Board", Panel: "Business Panel 4", Projects: 2, Cost: 30000000 },
+                { Board: "Business Board", Panel: "Business Panel 5", Projects: 1, Cost: 21000000 }
+
+            ];
+
+            const colors = [
+                { color: "blue", border: "blue-border" },
+                { color: "green", border: "green-border" },
+                { color: "orange", border: "orange-border" },
+                { color: "purple", border: "purple-border" }
+            ];
+
+            const boards = [];
+
+            for (let i = 0; i < data.length; i++) {
+
+                let board = boards.find(function (item) {
+                    return item.name === data[i].Board;
+                });
+
+                if (!board) {
+
+                    board = {
+                        name: data[i].Board,
+                        color: colors[boards.length].color,
+                        border: colors[boards.length].border,
+                        panels: []
+                    };
+
+                    boards.push(board);
+
+                }
+
+                board.panels.push({
+                    name: data[i].Panel,
+                    projects: data[i].Projects,
+                    cost: data[i].Cost
+                });
+
+            }
+
+            const dashboard = document.getElementById("dashboard");
+
+            for (let i = 0; i < boards.length; i++) {
+
+                const board = boards[i];
+
+                const boardDiv = document.createElement("div");
+
+                boardDiv.className = "board";
+
+                let boardProjects = 0;
+                let boardCost = 0;
+
+                for (let j = 0; j < board.panels.length; j++) {
+                    boardProjects += board.panels[j].projects;
+                    boardCost += board.panels[j].cost;
+                }
+
+
+                boardDiv.innerHTML = `
+<div class="board-header ${board.color}">
+
+    <div class="board-title">
+
+        <h2>${board.name}</h2>
+
+    </div>
+
+    <div class="board-summary">
+
+        <div class="summary-box">
+
+            <span class="summary-value">
+                ${boardProjects}
+            </span>
+
+            <span class="summary-text">
+                Ongoing Projects
+            </span>
+
+        </div>
+
+        <div class="summary-box">
+
+            <span class="summary-value">
+                ₹${(boardCost / 10000000).toFixed(2)} Cr
+            </span>
+
+            <span class="summary-text">
+                Overall Cost
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="panel-grid"></div>
+`;
+
+                const grid = boardDiv.querySelector(".panel-grid");
+
+                for (let j = 0; j < board.panels.length; j++) {
+
+                    const panel = board.panels[j];
+
+                    const card = document.createElement("div");
+
+                    card.className = "panel " + board.border;
+
+                    card.innerHTML = `
+            <div class="panel-title">
+                ${panel.name}
+            </div>
+
+            <div class="metric">
+                <label>Ongoing Projects</label>
+                <h3>${panel.projects}</h3>
+            </div>
+
+            <div class="metric">
+                <label>Overall Cost</label>
+                <h4>₹${(panel.cost / 10000000).toFixed(2)} Cr</h4>
+            </div>
+        `;
+
+                    grid.appendChild(card);
+
+                }
+
+                dashboard.appendChild(boardDiv);
+
+            }
+
+        </script>
+
+</body>
+
+</html>
