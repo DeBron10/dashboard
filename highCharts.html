@@ -1,0 +1,1060 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dynamic 3D Pie Chart</title>
+
+    <!-- Highcharts -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-3d.js"></script>
+    
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+
+<!-- Excel XLSX -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #F5F6F8;
+}
+
+.chart-row {
+    display: flex;
+    width: 100%;
+    gap: 20px;
+    align-items: stretch;
+}
+
+.chart-box {
+    width: 33.33%;
+    height: 550px;
+    background-color: #FFFFFF;
+    border: 1px solid #D1D5DB;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    box-sizing: border-box;
+}
+
+.place-chart-box {
+    border-color: #BFDBFE;
+}
+
+.category-chart-box {
+    border-color: #A7F3D0;
+}
+
+.cost-chart-box {
+    border-color: #FDE68A;
+}
+
+.cost-data-table {
+    position: absolute;
+    top: 50px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+
+    background-color: #FFFFFF;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+
+    padding: 15px;
+
+    overflow: auto;
+
+    z-index: 1000;
+}
+
+.cost-data-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+}
+
+.cost-data-table th {
+    background-color: #F3F4F6;
+    border: 1px solid #D1D5DB;
+    padding: 8px;
+    text-align: left;
+}
+
+.cost-data-table td {
+    border: 1px solid #D1D5DB;
+    padding: 8px;
+}
+
+.cost-data-table .close-data-table {
+    float: right;
+    padding: 5px 12px;
+    border: 1px solid #D1D5DB;
+    border-radius: 5px;
+    background-color: #FFFFFF;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+
+@media (max-width: 1200px) {
+
+    .chart-row {
+        flex-direction: column;
+    }
+
+    .chart-box {
+        width: 100%;
+    }
+}
+    </style>
+</head>
+
+<body>
+
+<div class="chart-row">
+
+    <div id="container"
+         class="chart-box place-chart-box">
+    </div>
+
+    <div id="categoryContainer"
+         class="chart-box category-chart-box">
+    </div>
+
+   <div id="costContainer" class="chart-box cost-chart-box"></div>
+
+</div>
+    <script type="text/javascript">
+
+var professionalColors = [
+    '#2563EB', // Blue
+    '#0891B2', // Cyan
+    '#059669', // Emerald
+    '#7C3AED', // Purple
+    '#D97706', // Amber
+    '#DC2626', // Red
+    '#DB2777', // Pink
+    '#4F46E5', // Indigo
+    '#0F766E', // Teal
+    '#9333EA', // Violet
+    '#0284C7', // Sky Blue
+    '#16A34A', // Green
+    '#C026D3', // Fuchsia
+    '#EA580C', // Orange
+    '#475569', // Slate
+    '#0369A1', // Dark Blue
+    '#15803D', // Dark Green
+    '#A21CAF', // Magenta
+    '#B91C1C', // Dark Red
+    '#64748B'  // Gray
+];
+
+
+        $(document).ready(function () {
+
+            // Simulate the response received from the backend
+            var data = {
+                d: JSON.stringify([
+                    [
+                        { PlaceName: "Pune", ProjectCount: 0 },
+                        { PlaceName: "Mumbai", ProjectCount: 18 },
+                        { PlaceName: "Nashik", ProjectCount: 12 },
+                        { PlaceName: "Nagpur", ProjectCount: 10 },
+                        { PlaceName: "Delhi", ProjectCount: 20 },
+                        { PlaceName: "Bengaluru", ProjectCount: 0 },
+                        { PlaceName: "Chennai", ProjectCount: 8 },
+                        { PlaceName: "Hyderabad", ProjectCount: 14 },
+                        { PlaceName: "Kolkata", ProjectCount: 9 },
+                        { PlaceName: "Jaipur", ProjectCount: 6 }
+                    ]
+                ])
+            };
+
+            // Same parsing pattern as your existing project
+            var d = $.parseJSON(data.d);
+
+            // Actual records are in d[0]
+            var tableData = d[0];
+            
+            // Category data received from backend
+var categoryDataFromBackend = [
+    { CategoryName: "Research", ProjectCount: 30 },
+    { CategoryName: "Development", ProjectCount: 25 },
+    { CategoryName: "Infrastructure", ProjectCount: 20 },
+    { CategoryName: "Training", ProjectCount: 12 },
+    { CategoryName: "Consultancy", ProjectCount: 10 }
+];
+
+            // Prepare data for Highcharts
+var chartData = [];
+var totalProjects = 0;
+
+for (var i = 0; i < tableData.length; i++) {
+
+    var projectCount = parseInt(tableData[i].ProjectCount, 10);
+
+    totalProjects = totalProjects + projectCount;
+
+    chartData.push({
+        name: tableData[i].PlaceName,
+        y: projectCount,
+        color: professionalColors[i]
+    });
+}
+
+var categoryChartData = [];
+var categoryTotalProjects = 0;
+
+for (var i = 0; i < categoryDataFromBackend.length; i++) {
+
+    var categoryProjectCount =
+        parseInt(categoryDataFromBackend[i].ProjectCount, 10);
+
+    categoryTotalProjects =
+        categoryTotalProjects + categoryProjectCount;
+
+    categoryChartData.push({
+        name: categoryDataFromBackend[i].CategoryName,
+        y: categoryProjectCount,
+        color: professionalColors[i]
+    });
+}
+
+var costDataFromBackend = [
+    { PlaceName: "Pune", CostInCr: 0 },
+    { PlaceName: "Mumbai", CostInCr: 18.5 },
+    { PlaceName: "Nashik", CostInCr: 9.2 },
+    { PlaceName: "Nagpur", CostInCr: 12.0 },
+    { PlaceName: "Delhi", CostInCr: 22.5 },
+    { PlaceName: "Bengaluru", CostInCr: 0 },
+    { PlaceName: "Chennai", CostInCr: 7.8 },
+    { PlaceName: "Hyderabad", CostInCr: 15.0 },
+    { PlaceName: "Kolkata", CostInCr: 8.5 },
+    { PlaceName: "Jaipur", CostInCr: 5.5 }
+];
+
+
+var costChartData = [];
+var totalCost = 0;
+
+for (var i = 0; i < costDataFromBackend.length; i++) {
+
+    var cost =
+        parseFloat(costDataFromBackend[i].CostInCr);
+
+    totalCost = totalCost + cost;
+
+    costChartData.push({
+        name: costDataFromBackend[i].PlaceName,
+        y: cost,
+        color: professionalColors[i]
+    });
+}
+
+            // Generate the 3D pie chart
+           Highcharts.chart('container', {
+
+    chart: {
+        type: 'pie',
+        backgroundColor: '#FFFFFF',
+
+        options3d: {
+            enabled: true,
+            alpha: 65,
+            beta: 0
+        }
+    },
+    
+exporting: {
+    enabled: true,
+
+    buttons: {
+        contextButton: {
+            menuItems: [
+                {
+                    text: 'View Full Screen',
+                    onclick: function () {
+                        this.fullscreen.open();
+                    }
+                },
+                {
+                    text: 'Print Chart',
+                    onclick: function () {
+                        this.print();
+                    }
+                },
+
+                'separator',
+
+                'downloadPNG',
+                'downloadJPEG',
+                'downloadSVG',
+                'downloadPDF',
+
+                'separator',
+
+                'downloadCSV',
+
+                {
+                    text: 'Download XLSX',
+                    onclick: function () {
+                        exportToExcel();
+                    }
+                },
+
+                'separator',
+
+                'viewData'
+            ]
+        }
+    }
+},
+
+   title: {
+    text: 'Projects by Place : ' + totalProjects,
+
+    style: {
+        color: '#222222',
+        fontSize: '20px',
+        fontWeight: 'bold'
+    }
+},
+
+    tooltip: {
+        pointFormat:
+            '<b>{point.y}</b> projects ' +
+            '({point.percentage:.1f}%)'
+    },
+
+    legend: {
+        enabled: true,
+        layout: 'horizontal',
+        align: 'center',
+        verticalAlign: 'bottom',
+
+        itemStyle: {
+            color: '#333333',
+            fontSize: '14px',
+            fontWeight: 'normal'
+        }
+    },
+
+    plotOptions: {
+        pie: {
+
+            depth: 30,
+            allowPointSelect: true,
+            cursor: 'pointer',
+
+            states: {
+                inactive: {
+                    opacity: 1
+                },
+                hover: {
+                    brightness: 0.2
+                }
+            },
+
+            dataLabels: {
+                enabled: true,
+
+                format:
+                    '{point.name}, {point.y}, ' +
+                    '{point.percentage:.1f}%',
+
+                style: {
+                    color: '#333333',
+                    textOutline: 'none',
+                    fontSize: '13px'
+                }
+            },
+
+            point: {
+
+                events: {
+
+                    legendItemClick: function () {
+
+                        var clickedPoint = this;
+
+                        // Wait for Highcharts to change
+                        // the visibility of the clicked point
+                        setTimeout(function () {
+
+                            var newTotal = 0;
+
+                            // Loop through all pie points
+                            for (var i = 0;
+                                 i < clickedPoint.series.points.length;
+                                 i++) {
+
+                                var point =
+                                    clickedPoint.series.points[i];
+
+                                // Add only visible slices
+                                if (point.visible) {
+
+                                    newTotal =
+                                        newTotal +
+                                        point.y;
+                                }
+                            }
+
+                            // Update chart title
+                            clickedPoint.series.chart.setTitle({
+                                text:
+                                    'Projects by Place : ' +
+                                    newTotal 
+                            });
+
+                        }, 50);
+                    }
+                }
+            }
+        }
+    },
+
+    series: [{
+        name: 'Projects',
+        colorByPoint: false,
+        showInLegend: true,
+        data: chartData
+    }]
+
+});
+
+
+
+Highcharts.chart('categoryContainer', {
+
+    chart: {
+        type: 'pie',
+        backgroundColor: '#FFFFFF',
+
+        options3d: {
+            enabled: true,
+            alpha: 65,
+            beta: 0
+        }
+    },
+
+    exporting: {
+        enabled: true,
+
+        buttons: {
+            contextButton: {
+                menuItems: [
+                    {
+                        text: 'View Full Screen',
+                        onclick: function () {
+                            this.fullscreen.open();
+                        }
+                    },
+                    {
+                        text: 'Print Chart',
+                        onclick: function () {
+                            this.print();
+                        }
+                    },
+
+                    'separator',
+
+                    'downloadPNG',
+                    'downloadJPEG',
+                    'downloadSVG',
+                    'downloadPDF',
+
+                    'separator',
+
+                    'downloadCSV',
+
+                    {
+                        text: 'Download XLSX',
+                        onclick: function () {
+                            exportCategoryToExcel();
+                        }
+                    },
+
+                    'separator',
+
+                    'viewData'
+                ]
+            }
+        }
+    },
+
+    title: {
+        text: 'Projects by Category : ' + categoryTotalProjects,
+
+        style: {
+            color: '#222222',
+            fontSize: '20px',
+            fontWeight: 'bold'
+        }
+    },
+
+    tooltip: {
+        pointFormat:
+            '<b>{point.y}</b> projects ' +
+            '({point.percentage:.1f}%)'
+    },
+
+    legend: {
+        enabled: true,
+        layout: 'horizontal',
+        align: 'center',
+        verticalAlign: 'bottom',
+
+        itemStyle: {
+            color: '#333333',
+            fontSize: '14px',
+            fontWeight: 'normal'
+        }
+    },
+
+    plotOptions: {
+        pie: {
+
+            depth: 30,
+
+            allowPointSelect: true,
+
+            cursor: 'pointer',
+
+            states: {
+                inactive: {
+                    opacity: 1
+                },
+
+                hover: {
+                    brightness: 0.2
+                }
+            },
+
+            dataLabels: {
+                enabled: true,
+
+                format:
+                    '{point.name}, {point.y}, ' +
+                    '{point.percentage:.1f}%',
+
+                style: {
+                    color: '#333333',
+                    textOutline: 'none',
+                    fontSize: '13px'
+                }
+            },
+
+            point: {
+
+                events: {
+
+                    legendItemClick: function () {
+
+                        var clickedPoint = this;
+
+                        setTimeout(function () {
+
+                            var newTotal = 0;
+
+                            for (
+                                var i = 0;
+                                i < clickedPoint.series.points.length;
+                                i++
+                            ) {
+
+                                var point =
+                                    clickedPoint.series.points[i];
+
+                                if (point.visible) {
+
+                                    newTotal =
+                                        newTotal + point.y;
+                                }
+                            }
+
+                            clickedPoint.series.chart.setTitle({
+
+                                text:
+                                    'Projects by Category : ' +
+                                    newTotal
+
+                            });
+
+                        }, 50);
+                    }
+                }
+            }
+        }
+    },
+
+    series: [{
+        name: 'Projects',
+        colorByPoint: false,
+        showInLegend: true,
+        data: categoryChartData
+    }]
+
+});
+
+
+
+Highcharts.chart('costContainer', {
+
+    chart: {
+        type: 'pie',
+        backgroundColor: '#FFFFFF',
+
+        options3d: {
+            enabled: true,
+            alpha: 65,
+            beta: 0
+        }
+    },
+
+    exporting: {
+        enabled: true,
+
+        buttons: {
+            contextButton: {
+
+                menuItems: [
+
+                    {
+                        text: 'View Full Screen',
+                        onclick: function () {
+                            this.fullscreen.open();
+                        }
+                    },
+
+                    {
+                        text: 'Print Chart',
+                        onclick: function () {
+                            this.print();
+                        }
+                    },
+
+                    'separator',
+
+                    'downloadPNG',
+                    'downloadJPEG',
+                    'downloadSVG',
+                    'downloadPDF',
+
+                    'separator',
+
+                    'downloadCSV',
+
+                    {
+                        text: 'Download XLSX',
+                        onclick: function () {
+                            exportCostToExcel();
+                        }
+                    },
+
+                    'separator',
+
+                    {
+    text: 'View Data',
+    onclick: function () {
+
+        showCostDataTable(this);
+    }
+}
+                ]
+            }
+        }
+    },
+
+    title: {
+        text:
+            'Project Cost by Place : ₹' +
+            totalCost.toFixed(1) +
+            ' Cr',
+
+        style: {
+            color: '#222222',
+            fontSize: '20px',
+            fontWeight: 'bold'
+        }
+    },
+
+    tooltip: {
+        pointFormat:
+            '<b>{point.y:.1f}</b> ' +
+            '({point.percentage:.1f}%)'
+    },
+
+    legend: {
+        enabled: true,
+
+        layout: 'horizontal',
+        align: 'center',
+        verticalAlign: 'bottom',
+
+        itemStyle: {
+            color: '#333333',
+            fontSize: '14px',
+            fontWeight: 'normal'
+        }
+    },
+
+    plotOptions: {
+        pie: {
+
+            depth: 30,
+
+            allowPointSelect: true,
+
+            cursor: 'pointer',
+
+            states: {
+
+                inactive: {
+                    opacity: 1
+                },
+
+                hover: {
+                    brightness: 0.2
+                }
+            },
+
+            dataLabels: {
+
+                enabled: true,
+
+                format:
+                    '{point.name}, {point.y:.1f}, ' +
+                    '{point.percentage:.1f}%',
+
+                style: {
+                    color: '#333333',
+                    textOutline: 'none',
+                    fontSize: '13px'
+                }
+            },
+
+            point: {
+
+                events: {
+
+                    legendItemClick: function () {
+
+                        var clickedPoint = this;
+
+                        setTimeout(function () {
+
+                            var newTotal = 0;
+
+                            for (
+                                var i = 0;
+                                i < clickedPoint.series.points.length;
+                                i++
+                            ) {
+
+                                var point =
+                                    clickedPoint.series.points[i];
+
+                                if (point.visible) {
+
+                                    newTotal =
+                                        newTotal + point.y;
+                                }
+                            }
+
+                            clickedPoint.series.chart.setTitle({
+
+                                text:
+                                    'Project Cost by Place : ₹' +
+                                    newTotal.toFixed(1) +
+                                    ' Cr'
+                            });
+
+                        }, 50);
+                    }
+                }
+            }
+        }
+    },
+
+    series: [
+
+        {
+            name: 'Project Cost',
+
+            colorByPoint: false,
+
+            showInLegend: true,
+
+            data: costChartData
+        }
+    ]
+});
+
+        });
+        
+        function exportToExcel() {
+
+    // Get the currently displayed Highcharts chart
+    var chart = Highcharts.charts[0];
+
+    var excelData = [];
+
+    // Get all points from the pie chart
+    for (var i = 0; i < chart.series[0].points.length; i++) {
+
+        var point = chart.series[0].points[i];
+
+        // Export only visible places
+        if (point.visible) {
+
+            excelData.push({
+                "Place": point.name,
+                "Project Count": point.y,
+                "Percentage": point.percentage.toFixed(1) + "%"
+            });
+        }
+    }
+
+    // Convert data to Excel worksheet
+    var worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    // Create workbook
+    var workbook = XLSX.utils.book_new();
+
+    // Add worksheet
+    XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Projects"
+    );
+
+    // Download Excel file
+    XLSX.writeFile(
+        workbook,
+        "Projects_By_Place.xlsx"
+    );
+}
+
+
+function exportCategoryToExcel() {
+
+    // Get the category chart
+    var chart = Highcharts.charts[1];
+
+    var excelData = [];
+
+    for (
+        var i = 0;
+        i < chart.series[0].points.length;
+        i++
+    ) {
+
+        var point = chart.series[0].points[i];
+
+        // Export only visible categories
+        if (point.visible) {
+
+            excelData.push({
+                "Category": point.name,
+                "Project Count": point.y,
+                "Percentage":
+                    point.percentage.toFixed(1) + "%"
+            });
+        }
+    }
+
+    var worksheet =
+        XLSX.utils.json_to_sheet(excelData);
+
+    var workbook =
+        XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Categories"
+    );
+
+    XLSX.writeFile(
+        workbook,
+        "Projects_By_Category.xlsx"
+    );
+}
+
+function exportCostToExcel() {
+
+    var chart = Highcharts.charts[2];
+
+    var excelData = [];
+
+    for (
+        var i = 0;
+        i < chart.series[0].points.length;
+        i++
+    ) {
+
+        var point = chart.series[0].points[i];
+
+        if (point.visible) {
+
+            excelData.push({
+
+                "Place": point.name,
+
+                "Cost (Cr)":
+                    point.y.toFixed(1),
+
+                "Percentage":
+                    point.percentage.toFixed(1) + "%"
+            });
+        }
+    }
+
+    var worksheet =
+        XLSX.utils.json_to_sheet(excelData);
+
+    var workbook =
+        XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Cost By Place"
+    );
+
+    XLSX.writeFile(
+        workbook,
+        "Project_Cost_By_Place.xlsx"
+    );
+}
+
+
+function showCostDataTable(chart) {
+
+    var container =
+        document.getElementById('costContainer');
+
+    // Remove existing table if already present
+    var oldTable =
+        container.querySelector('.cost-data-table');
+
+    if (oldTable) {
+        oldTable.remove();
+    }
+
+    // Create table container
+    var tableContainer =
+        document.createElement('div');
+
+    tableContainer.className =
+        'cost-data-table';
+
+    // Create close button
+    var closeButton =
+        document.createElement('button');
+
+    closeButton.className =
+        'close-data-table';
+
+    closeButton.innerHTML =
+        'Close';
+
+    closeButton.onclick = function () {
+
+        tableContainer.remove();
+    };
+
+    tableContainer.appendChild(closeButton);
+
+    // Create table
+    var table =
+        document.createElement('table');
+
+    // Create table header
+    var headerRow =
+        document.createElement('tr');
+
+    var placeHeader =
+        document.createElement('th');
+
+    placeHeader.innerHTML =
+        'Place';
+
+    var costHeader =
+        document.createElement('th');
+
+    costHeader.innerHTML =
+        'Cost';
+
+    var percentageHeader =
+        document.createElement('th');
+
+    percentageHeader.innerHTML =
+        'Percentage';
+
+    headerRow.appendChild(placeHeader);
+    headerRow.appendChild(costHeader);
+    headerRow.appendChild(percentageHeader);
+
+    table.appendChild(headerRow);
+
+    // Add visible points
+    for (
+        var i = 0;
+        i < chart.series[0].points.length;
+        i++
+    ) {
+
+        var point =
+            chart.series[0].points[i];
+
+        if (point.visible) {
+
+            var row =
+                document.createElement('tr');
+
+            var placeCell =
+                document.createElement('td');
+
+            placeCell.innerHTML =
+                point.name;
+
+            var costCell =
+                document.createElement('td');
+
+            costCell.innerHTML =
+                point.y.toFixed(1);
+
+            var percentageCell =
+                document.createElement('td');
+
+            percentageCell.innerHTML =
+                point.percentage.toFixed(1) + '%';
+
+            row.appendChild(placeCell);
+            row.appendChild(costCell);
+            row.appendChild(percentageCell);
+
+            table.appendChild(row);
+        }
+    }
+
+    tableContainer.appendChild(table);
+
+    // Make sure chart container can contain overlay
+    container.style.position = 'relative';
+
+    container.appendChild(tableContainer);
+}
+
+
+    </script>
+
+</body>
+</html>
